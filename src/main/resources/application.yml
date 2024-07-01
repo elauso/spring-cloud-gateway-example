@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: spring-cloud-gateway-example
+  cloud:
+    gateway:
+      routes:
+      - id: anotherendpoint_helloworld_route
+        uri: http://localhost:8081
+        predicates:
+          - Path=/hello-world/another-endpoint/**
+        filters:
+          - RewritePath=/hello-world/another-endpoint/?(?<segment>.*), /hello-world$\{segment}
+      - id: default_helloworld_route
+        uri: http://localhost:8081
+        predicates:
+          - Path=/hello-world/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

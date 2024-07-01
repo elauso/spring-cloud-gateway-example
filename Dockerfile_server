@@ -1,0 +1,7 @@
+FROM node:4.4
+
+EXPOSE 8081
+
+COPY server_uri.js .
+
+CMD node server_uri.js
