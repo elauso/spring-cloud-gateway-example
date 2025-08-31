@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: spring-cloud-gateway-example
+  main:
+    banner-mode: off
+  cloud:
+    gateway:
+      routes:
+        - id: backends
+          uri: http://backend.local
+          predicates:
+            - Path=/api/**
+          filters:
+            - StripPrefix=1

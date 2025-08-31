@@ -1,0 +1,8 @@
+# bootstrap
+docker-compose up --build
+
+# check dns host change
+docker exec -it {pid-gateway-container} getent hosts backend.local
+
+# curl loop to check rotation on dns
+for i in {1..100}; do curl -i http://localhost:8080/api; sleep 1; done

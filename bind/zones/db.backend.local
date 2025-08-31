@@ -1,0 +1,14 @@
+$TTL 5
+@   IN  SOA ns.backend.local. admin.backend.local. (
+        2025083101 ; serial
+        3600       ; refresh
+        1800       ; retry
+        604800     ; expire
+        86400      ; minimum
+)
+@       IN  NS      ns.backend.local.
+ns      IN  A       172.28.0.10
+
+@       IN  A       172.28.0.11
+@       IN  A       172.28.0.12
+@       IN  A       172.28.0.13
