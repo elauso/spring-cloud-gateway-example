@@ -5,6 +5,7 @@ spring:
   application:
     name: spring-cloud-gateway-example
   main:
+    allow-bean-definition-overriding: true
     banner-mode: off
   cloud:
     gateway:
@@ -15,3 +16,15 @@ spring:
             - Path=/api/**
           filters:
             - StripPrefix=1
+
+gateway:
+  httpclient:
+    max-connections: 50
+    max-idle-time: 2s
+    max-life-time: 5s
+    cache-ttl-min: 5s
+    cache-ttl-max: 10s
+
+logging:
+  level:
+    net.elau.example.spring_cloud_gateway_example: DEBUG
