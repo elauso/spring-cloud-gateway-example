@@ -11,20 +11,61 @@ spring:
     gateway:
       routes:
         - id: backends
-          uri: http://backend.local
+          uri: lb://BACKEND-SERVICE
           predicates:
             - Path=/api/**
           filters:
             - StripPrefix=1
+            - name: Retry
+              args:
+                retries: 1
+                methods: GET,POST,PUT,DELETE
+                statuses: BAD_GATEWAY,GATEWAY_TIMEOUT,INTERNAL_SERVER_ERROR,SERVICE_UNAVAILABLE
+                exceptions:
+                  - java.io.IOException
+                  - reactor.netty.http.client.PrematureCloseException
+                  - io.netty.channel.ConnectTimeoutException
+                backoff:
+                  firstBackoff: 1ms
+                  maxBackoff: 1ms
+                  factor: 1
+            - name: CircuitBreaker
+              args:
+                name: backendServiceBreaker
+                fallbackUri: forward:/_fallback/api
+    loadbalancer:
+      retry:
+        enabled: true
 
-gateway:
+custom-gateway-config:
   httpclient:
     max-connections: 50
     max-idle-time: 2s
     max-life-time: 5s
+    pending-acquire-timeout: 200ms
+    response-timeout: 2s
+    connect-timeout-milis: 500
     cache-ttl-min: 5s
     cache-ttl-max: 10s
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      backendServiceBreaker:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 20            # last 20 requests
+        failureRateThreshold: 50          # open wether >50% fail
+        waitDurationInOpenState: 5s       # remains open for 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        recordExceptions:
+          - org.springframework.web.server.ResponseStatusException
+          - java.io.IOException
+          - reactor.netty.http.client.PrematureCloseException
+          - io.netty.channel.ConnectTimeoutException
+        ignoreExceptions: []
 
 logging:
   level:
     net.elau.example.spring_cloud_gateway_example: DEBUG
+    org.springframework.cloud.loadbalancer: DEBUG

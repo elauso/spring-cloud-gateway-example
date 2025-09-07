@@ -26,14 +26,15 @@ class HttpClientConfig(private val props: HttpClientProperties) {
                 .maxConnections(props.maxConnections)
                 .maxIdleTime(props.maxIdleTime)
                 .maxLifeTime(props.maxLifeTime)
+                .pendingAcquireTimeout(props.pendingAcquireTimeout)
                 .build()
         ).resolver { builder ->
             builder.cacheMinTimeToLive(props.cacheTtlMin)
             builder.cacheMaxTimeToLive(props.cacheTtlMax)
         }.runOn(loopResources)
-            .option(ChannelOption.SO_KEEPALIVE, true)
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, props.connectTimeoutMilis)
+            .responseTimeout(props.responseTimeout)
             .doOnConnected { conn ->
-                val address = conn.channel().remoteAddress()
-                logger.debug("Connected to backend.local -> {}", address)
+                logger.debug("Connected to backend.local -> {}", conn.channel().remoteAddress())
             }
 }
